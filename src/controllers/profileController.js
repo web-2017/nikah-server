@@ -41,7 +41,13 @@ export const allProfiles = async (req, res) => {
 
 		const query = req.query
 
-		const filterOptions = [
+		// const { ...rest } = req.query
+		// Object.keys(rest).map((elem) => {
+		// 	console.log({ [elem]: elem })
+		// })
+
+		// filter $or options
+		const filterOrOptions = [
 			{ wannaKidsMore: query.wannaKidsMore },
 			{ incomeMonth: { $gte: query.incomeMonth } },
 			{ languages: { $regex: `${query.languages}`, $options: 'i' } },
@@ -54,9 +60,21 @@ export const allProfiles = async (req, res) => {
 			{ familyStatus: query.familyStatus },
 		]
 
-		const profiles = await Profile.find({
-			$or: filterOptions,
-		})
+		// filter by query
+		const filterOptions = {
+			wannaKidsMore: query.wannaKidsMore || 'yes',
+			languages: { $regex: `${query.languages || 'English'}`, $options: 'i' },
+			incomeMonth: { $gte: query.incomeMonth || 3000 },
+			incomeYear: { $gte: query.incomeYear || 40000 },
+			age: { $gte: query.fromAge || 20, $lt: query.toAge || 30 }, // age from - to
+			akida: { $regex: `${query.akida || 'ahlu'}`, $options: 'i' },
+			convertMuslim: query.convertMuslim || 'no',
+			originRace: query.originRace || 'white',
+			familyStatus: query.familyStatus || 'never',
+		}
+		const profiles = await Profile.find(
+			Object.keys(query).length ? filterOptions : undefined
+		)
 			.sort({ createdAt: 1 })
 			.limit(100)
 
