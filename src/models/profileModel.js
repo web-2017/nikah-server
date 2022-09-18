@@ -18,6 +18,7 @@ const profileSchema = new mongoose.Schema(
 			default: '',
 		},
 		familyStatus: stringRequiredType,
+		kids: numberRequiredType,
 		wannaKidsMore: {
 			...stringRequiredType,
 			required: false,
@@ -33,7 +34,6 @@ const profileSchema = new mongoose.Schema(
 		// 	required: false,
 		// 	default: 'no answer',
 		// },
-		age: stringRequiredType,
 		levelOfFaith: { ...stringRequiredType, default: 'no answer' },
 		akida: stringRequiredType,
 		convertMuslim: stringRequiredType,
@@ -60,8 +60,8 @@ const profileSchema = new mongoose.Schema(
 			specialization: stringRequiredType,
 			education: stringRequiredType,
 		},
-		incomeMonth: numberRequiredType,
-		incomeYear: numberRequiredType,
+		incomeMonth: Number,
+		incomeYear: Number,
 		postedBy: {
 			type: ObjectId,
 			ref: 'User',

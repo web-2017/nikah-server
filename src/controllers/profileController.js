@@ -29,7 +29,11 @@ export const getProfile = async (req, res) => {
 		const currentProfile = await Profile.findOne({
 			postedBy: req.params.userId,
 		}).select('-__v -password')
-		return res.json(currentProfile)
+
+		const user = await User.findOne({ _id: req.params.userId }).select(
+			'-__v -password'
+		)
+		return res.json({ profile: currentProfile, user: user })
 	} catch (error) {
 		console.log(error)
 		return res.status(422).json({ message: 'Error ', error })
