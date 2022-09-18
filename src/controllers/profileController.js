@@ -1,4 +1,5 @@
 import Profile from '../models/profileModel.js'
+import User from '../models/userModel.js'
 
 export const createProfile = async (req, res) => {
 	const { familyStatus, originRace } = req.body
@@ -78,7 +79,7 @@ export const allProfiles = async (req, res) => {
 			.sort({ createdAt: 1 })
 			.limit(100)
 
-		return res.json({ success: true, count: profiles.length, profiles })
+		return res.json({ success: true, count: profiles?.length, profiles })
 	} catch (error) {
 		console.log(error)
 		return res.status(422).json({ message: 'Error ' + error })

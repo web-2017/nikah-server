@@ -22,6 +22,14 @@ export const userController = async (req, res) => {
 		})
 }
 
+export const allUsersController = async (req, res) => {
+	await User.find({ sex: { $ne: req.query.sex } })
+		.select('-password')
+		.then((users) => {
+			return res.json(users)
+		})
+		.catch((err) => res.status(404).json({ error: 'User not found: ' + err }))
+}
 // update current user
 export const updateUserController = async (req, res) => {
 	try {
