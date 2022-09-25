@@ -1,3 +1,5 @@
+import 'querystring'
+
 import Profile from '../models/profileModel.js'
 import User from '../models/userModel.js'
 
@@ -12,6 +14,7 @@ export const createProfile = async (req, res) => {
 		const profile = await Profile.create({
 			...req.body,
 			postedBy: req.user,
+			user: req.user,
 		})
 
 		profile.save().then(() => res.json(profile))
@@ -45,13 +48,10 @@ export const allProfiles = async (req, res) => {
 		// example query = http://localhost:4000/v1/profiles?wannaKidsMore=no&familyStatus=married
 
 		const query = req.query
-
-		// const { ...rest } = req.query
-		// Object.keys(rest).map((elem) => {
-		// 	console.log({ [elem]: elem })
-		// })
+		console.log('query', query)
 
 		// filter $or options
+
 		const filterOrOptions = [
 			{ wannaKidsMore: query.wannaKidsMore },
 			{ incomeMonth: { $gte: query.incomeMonth } },
@@ -67,19 +67,38 @@ export const allProfiles = async (req, res) => {
 
 		// filter by query
 		const filterOptions = {
-			wannaKidsMore: query.wannaKidsMore || 'yes',
-			languages: { $regex: `${query.languages || 'English'}`, $options: 'i' },
-			incomeMonth: { $gte: query.incomeMonth || 3000 },
-			incomeYear: { $gte: query.incomeYear || 40000 },
-			age: { $gte: query.fromAge || 20, $lt: query.toAge || 30 }, // age from - to
-			akida: { $regex: `${query.akida || 'ahlu'}`, $options: 'i' },
-			convertMuslim: query.convertMuslim || 'no',
-			originRace: query.originRace || 'white',
-			familyStatus: query.familyStatus || 'never',
+			languages: { $regex: `${query.languages}`, $options: 'i' },
+			incomeMonth: { $gte: query.incomeMonth },
+			incomeYear: { $gte: query.incomeYear },
+			akida: { $regex: `${query.akida}`, $options: 'i' },
+			age: { $gte: query.fromAge, $lte: query.toAge },
 		}
-		const profiles = await Profile.find(
-			Object.keys(query).length ? filterOptions : undefined
-		)
+		let options = {
+			...req.query,
+		}
+
+		const arr = ['languages', 'incomeMonth', 'incomeYear', 'age']
+
+		arr.forEach((element) => {
+			for (const key in req.query) {
+				if (key === element) {
+					options[key] = filterOptions[key]
+				}
+
+				if (key === 'height') {
+					options = {
+						[`appearance.height`]: { $gte: req.query.height },
+					}
+				}
+				if (key === 'fromAge') {
+					options.age = filterOptions.age
+				}
+			}
+		})
+
+		console.log(options)
+
+		const profiles = await Profile.find(options)
 			.sort({ createdAt: 1 })
 			.limit(100)
 
@@ -94,10 +113,15 @@ export const editProfile = async (req, res) => {
 	if (!req.body.postId) {
 		return res.status(422).json({ message: 'postId is required' })
 	}
+
 	try {
 		Profile.findByIdAndUpdate(
 			req.body.postId,
-			{ ...req.body },
+			{
+				...req.body,
+				// ! remove field {user} after test, because it already exist in profileCreatedController
+				user: req.user,
+			},
 			{ new: true }
 		).exec((err, post) => {
 			if (err) return res.status(422).json({ error: err })

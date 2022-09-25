@@ -12,7 +12,7 @@ import {
 
 router
 	.get('/profile/:userId', isAuth, getProfile)
-	.get('/profiles', isAuth, allProfiles)
+	.get('/profiles', allProfiles)
 	.post('/profile', isAuth, createProfile)
 	.put('/profile', isAuth, editProfile)
 

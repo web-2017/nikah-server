@@ -12,6 +12,7 @@ const profileSchema = new mongoose.Schema(
 				default: 'Allah',
 			},
 		},
+		age: String,
 		description: {
 			...stringRequiredType,
 			required: false,
@@ -66,6 +67,7 @@ const profileSchema = new mongoose.Schema(
 			type: ObjectId,
 			ref: 'User',
 		},
+		user: Object,
 	},
 
 	{ timestamps: true }
