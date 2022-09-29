@@ -5,6 +5,7 @@ import morgan from 'morgan'
 const app = express()
 
 import dbConnection from './src/config/dbConnect.js'
+import { logger } from './src/middleware/logger.js'
 // imports
 import { PORT } from './src/config/keys.js'
 import authRouter from './src/router/auth.js'
@@ -21,6 +22,7 @@ dbConnection()
 app.use(cors())
 app.use(express.json())
 app.use(morgan('tiny'))
+app.use(logger)
 
 // routes
 app.use('/v1', authRouter)
